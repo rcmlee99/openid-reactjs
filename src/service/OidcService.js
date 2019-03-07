@@ -1,7 +1,10 @@
-let host = 'https://connect-sandbox.service.nsw.gov.au/v1/identity';
-let client_id = 'uJaT71EdLhXH5MJjf1EqNottE13vZDjJ';
-let client_secret = 'm3tJhxrISZcSdnzK';
-let redirect_uri = 'http://localhost:3000';
+const uuidv1 = require('uuid/v1');
+
+let host = '';
+let client_id = '';
+let client_secret = '';
+let redirect_uri = '';
+let uuid = uuidv1();
 
 class OidcService {
 
@@ -17,8 +20,12 @@ class OidcService {
         return host + "/oauth/tokens/" + access_token;
     }
 
-    authorizeURL = host + "/oauth/authorize?state=ABC-DEF-123&scope=openid%20profile&client_id=" + client_id + "&client_secret=" + client_secret + "&response_type=code&redirect_uri=" + redirect_uri;
-    
+    _authorizeURL() {
+        const authorizeURL = host + "/oauth/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect_uri;
+        console.log(authorizeURL);
+        return authorizeURL;
+    }
+
     _getUserInfo = (accessToken) => {
         const userInfoHeaders = {
             'Authorization': 'Bearer ' + accessToken,
@@ -37,7 +44,7 @@ class OidcService {
     }
 
     _signOut = (accessToken) =>  {
-        console.log('Signing Out');
+        console.log('Signing Out Token :::', accessToken);
         const urlSignOut = host + "/oauth/tokens/" + accessToken;
         return new Promise((resolve, reject) =>{
             fetch(urlSignOut, {

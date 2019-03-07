@@ -7,7 +7,7 @@ import { Button } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 
 const oidcService = new OidcService();
-const authorisationURL = oidcService.authorizeURL;
+const authorisationURL = oidcService._authorizeURL();
 
 class App extends Component {
 
@@ -29,6 +29,7 @@ class App extends Component {
         else return response.json();
       }).then(json => {
         console.log(json);
+        console.log(JSON.stringify(json));
         this.setState({ authenticated: true, accessToken: json.access_token });
       }).catch(error => {
         console.log('*****Error :::', error);
@@ -40,6 +41,7 @@ class App extends Component {
       if (!response.ok) throw new Error(response.status)
       else return response.json();
     }).then(userInfo => {
+      console.log(userInfo);
       this.setState({ userEmail: userInfo.sub });
       console.log('Email::::',this.state.userEmail);
     }).catch(error => {
