@@ -20,8 +20,14 @@ class OidcService {
         return host + "/oauth/tokens/" + access_token;
     }
 
-    _authorizeURL() {
+    _authorizeAuthCodeURL() {
         const authorizeURL = host + "/oauth/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect_uri;
+        console.log(authorizeURL);
+        return authorizeURL;
+    }
+    
+    _authorizeImplicitURL() {
+        const authorizeURL = host + "/oauth/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=token&redirect_uri=" + redirect_uri;
         console.log(authorizeURL);
         return authorizeURL;
     }

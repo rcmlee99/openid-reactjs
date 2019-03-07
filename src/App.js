@@ -3,11 +3,12 @@ import logo from './logo.svg';
 import './App.css';
 import OidcService from './service/OidcService';
 import queryString from 'query-string';
-import { Button } from 'reactstrap';
+import { Button, Table, Row, Col } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 
 const oidcService = new OidcService();
-const authorisationURL = oidcService._authorizeURL();
+const authorisationAuthCodeURL = oidcService._authorizeAuthCodeURL();
+const authorisationImplicitURL = oidcService._authorizeImplicitURL();
 
 class App extends Component {
 
@@ -59,9 +60,13 @@ class App extends Component {
 
   componentDidMount() {
     const params = queryString.parse(this.props.location.search);
-    console.log("Params", params);
+    const hashParams = queryString.parse(this.props.location.hash);
     if (params.code) { 
+      console.log(params);
       this.setState({ stateApp: params.state, code: params.code, authenticated: true });
+    } else if (hashParams.access_token) {
+      console.log(hashParams);
+      this.setState({ authenticated: true, accessToken: hashParams.access_token});
     }
   }
 
@@ -70,18 +75,42 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p>{this.state.authenticated ? "authenticated" : "unauthenticated"}
+          <p>State: {this.state.authenticated ? "Authenticated" : "Unauthenticated"}
           </p>
-          <Button color="primary">
-          <a
-            className="App-link"
-            href={authorisationURL}
-          >
-            GetCode
-          </a>
-          </Button>
-          <br/>
-          <Button color="primary" onClick={this._exchangeToken}>ExchangeToken</Button>
+          <Table>
+            <Row border="1">
+              <Col>
+                Authorication Code Pattern
+              </Col>
+              <Col>
+                Implicit Grant Pattern
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Button color="primary">
+                <a
+                  className="App-link"
+                  href={authorisationAuthCodeURL}
+                >
+                  AuthCode Login
+                </a>
+                </Button>
+                <br/>
+                <Button color="primary" onClick={this._exchangeToken}>ExchangeToken</Button>
+              </Col>
+              <Col>
+                <Button color="primary">
+                  <a
+                    className="App-link2"
+                    href={authorisationImplicitURL}
+                  >
+                    Implicit Login
+                  </a>
+                </Button>
+              </Col>
+            </Row>
+          </Table>
           <br/>
           <Button color="primary" onClick={this._getUserInfo}>GetInfo</Button>
           <br/>
