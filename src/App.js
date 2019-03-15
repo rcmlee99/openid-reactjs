@@ -19,6 +19,8 @@ class App extends Component {
       authenticated: false,
       userEmail: null,
       accessToken: null,
+      idToken: null,
+      refreshToken: null,
       stateApp: null,
       code: null
     };
@@ -31,7 +33,7 @@ class App extends Component {
       }).then(json => {
         console.log(json);
         console.log(JSON.stringify(json));
-        this.setState({ authenticated: true, accessToken: json.access_token });
+        this.setState({ authenticated: true, accessToken: json.access_token, refreshToken: json.refresh_token, idToken: json.id_token });
       }).catch(error => {
         console.log('*****Error :::', error);
       });    
@@ -45,6 +47,18 @@ class App extends Component {
       console.log(userInfo);
       this.setState({ userEmail: userInfo.sub });
       console.log('Email::::',this.state.userEmail);
+    }).catch(error => {
+      console.log('*****Error :::', error);
+    });
+  }
+
+  _getRefreshToken = () => {
+    oidcService._postRefreshToken(this.state.refreshToken).then(response => {
+      if (!response.ok) throw new Error(response.status)
+      else return response.json();
+    }).then(json => {
+      console.log(json);
+      this.setState({ accessToken: json.access_token, refreshToken: json.refresh_token });
     }).catch(error => {
       console.log('*****Error :::', error);
     });
@@ -113,6 +127,16 @@ class App extends Component {
           </Table>
           <br/>
           <Button color="primary" onClick={this._getUserInfo}>GetInfo</Button>
+          <br/>
+          <Table>
+            <Row border="1">
+              <Col>
+              <Button color="primary" onClick={this._getRefreshToken}>RefreshToken</Button>
+              </Col>
+              <Col>
+              </Col>
+            </Row>
+          </Table>
           <br/>
           <Button color="primary" onClick={this._logout}>Logout</Button>
         </header>

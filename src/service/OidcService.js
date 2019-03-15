@@ -1,4 +1,5 @@
 const uuidv1 = require('uuid/v1');
+var btoa = require('btoa');
 
 let host = '';
 let client_id = '';
@@ -10,6 +11,10 @@ class OidcService {
 
     _urlToken() {
         return host + "/oauth/token";
+    }
+
+    _urlRefreshToken() {
+        return host + "/oauth/refresh/token";
     }
     
     _urlUserInfo() {
@@ -67,16 +72,38 @@ class OidcService {
     _getToken = (oidc_code, oidc_state) => {
         console.log('Getting Token');
         const formHeaders = {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization' : 'Basic ' +  btoa(client_id+':'+client_secret)
           };
-        const formData = 'client_id=' + client_id + 
-            '&client_secret=' + client_secret + 
-            '&grant_type=authorization_code&redirect_uri=' + redirect_uri +
+        const formData = 'grant_type=authorization_code&redirect_uri=' + redirect_uri +
             '&state=' + oidc_state +
             '&code=' + oidc_code;
 
         return new Promise((resolve, reject) =>{
             fetch(this._urlToken(), {
+                headers: formHeaders,
+                method: 'POST',
+                body: formData
+            }).then(json => {
+                resolve(json);
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    }
+
+    _postRefreshToken = (refresh_token) => {
+        console.log('Getting Refresh Token');
+        const formHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization' : 'Basic ' +  btoa(client_id+':'+client_secret)
+          };
+        const formData = 
+            '&grant_type=refresh_token' +
+            '&refresh_token=' + refresh_token;
+
+        return new Promise((resolve, reject) =>{
+            fetch(this._urlRefreshToken(), {
                 headers: formHeaders,
                 method: 'POST',
                 body: formData
