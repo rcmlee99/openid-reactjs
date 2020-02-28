@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import OidcService from './service/OidcService';
 import queryString from 'query-string';
-import { Button, Table, Row, Col } from 'reactstrap';
+import { Button, Container, Row, Col } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
 
 const oidcService = new OidcService();
@@ -31,7 +31,6 @@ class App extends Component {
         if (!response.ok) throw new Error(response.status)
         else return response.json();
       }).then(json => {
-        console.log(json);
         console.log(JSON.stringify(json));
         this.setState({ authenticated: true, accessToken: json.access_token, refreshToken: json.refresh_token, idToken: json.id_token });
       }).catch(error => {
@@ -44,7 +43,7 @@ class App extends Component {
       if (!response.ok) throw new Error(response.status)
       else return response.json();
     }).then(userInfo => {
-      console.log(userInfo);
+      console.log(JSON.stringify(userInfo));
       this.setState({ userEmail: userInfo.sub });
       console.log('Email::::',this.state.userEmail);
     }).catch(error => {
@@ -57,8 +56,8 @@ class App extends Component {
       if (!response.ok) throw new Error(response.status)
       else return response.json();
     }).then(json => {
-      console.log(json);
-      this.setState({ accessToken: json.access_token, refreshToken: json.refresh_token });
+      console.log(JSON.stringify(json));
+      this.setState({ accessToken: json.access_token });
     }).catch(error => {
       console.log('*****Error :::', error);
     });
@@ -67,7 +66,7 @@ class App extends Component {
   _logout = () => {
     oidcService._signOut(this.state.accessToken).then(signedOut => {
       if (signedOut) {
-        this.setState({ authenticated: false });
+        this.setState({ authenticated: false, accessToken: null, refreshToken: null, idToken: null });
       }
     });
   }
@@ -77,6 +76,7 @@ class App extends Component {
     const hashParams = queryString.parse(this.props.location.hash);
     if (params.code) { 
       console.log(params);
+      this.props.history.push("/");
       this.setState({ stateApp: params.state, code: params.code, authenticated: true });
     } else if (hashParams.access_token) {
       console.log(hashParams);
@@ -91,7 +91,7 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <p>State: {this.state.authenticated ? "Authenticated" : "Unauthenticated"}
           </p>
-          <Table>
+          <Container>
             <Row border="1">
               <Col>
                 Authorication Code Pattern
@@ -124,11 +124,11 @@ class App extends Component {
                 </Button>
               </Col>
             </Row>
-          </Table>
+          </Container>
           <br/>
           <Button color="primary" onClick={this._getUserInfo}>GetInfo</Button>
           <br/>
-          <Table>
+          <Container>
             <Row border="1">
               <Col>
               <Button color="primary" onClick={this._getRefreshToken}>RefreshToken</Button>
@@ -136,7 +136,7 @@ class App extends Component {
               <Col>
               </Col>
             </Row>
-          </Table>
+          </Container>
           <br/>
           <Button color="primary" onClick={this._logout}>Logout</Button>
         </header>
