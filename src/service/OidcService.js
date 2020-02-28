@@ -10,29 +10,29 @@ let uuid = uuidv1();
 class OidcService {
 
     _urlToken() {
-        return host + "/oauth/token";
+        return host + "/oauth2/token";
     }
 
     _urlRefreshToken() {
-        return host + "/oauth/refresh/token";
+        return host + "/oauth2/token";
     }
     
     _urlUserInfo() {
-        return host + "/oauth/userinfo";
+        return host + "/oauth2/userInfo";
     }
 
     _urlSignOut = (access_token) => {
-        return host + "/oauth/tokens/" + access_token;
+        return host + "/logout";
     }
 
     _authorizeAuthCodeURL() {
-        const authorizeURL = host + "/oauth/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect_uri;
+        const authorizeURL = host + "/oauth2/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect_uri;
         console.log(authorizeURL);
         return authorizeURL;
     }
     
     _authorizeImplicitURL() {
-        const authorizeURL = host + "/oauth/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=token&redirect_uri=" + redirect_uri;
+        const authorizeURL = host + "/oauth2/authorize?state=" + uuid + "&scope=openid%20profile&client_id=" + client_id + "&response_type=token&redirect_uri=" + redirect_uri;
         console.log(authorizeURL);
         return authorizeURL;
     }
@@ -55,11 +55,12 @@ class OidcService {
     }
 
     _signOut = (accessToken) =>  {
-        console.log('Signing Out Token :::', accessToken);
-        const urlSignOut = host + "/oauth/tokens/" + accessToken;
+        console.log('Signing Out Token');
+        const urlSignOut = host + "/logout?client_id=" + client_id + "&logout_uri=" + redirect_uri;
         return new Promise((resolve, reject) =>{
             fetch(urlSignOut, {
-                method: 'DELETE'
+                method: 'GET',
+                mode: 'no-cors'
             }).then(() => {
                 resolve(true);
             }).catch(error => {
