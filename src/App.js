@@ -64,11 +64,8 @@ class App extends Component {
   }
 
   _logout = () => {
-    oidcService._signOut(this.state.accessToken).then(signedOut => {
-      if (signedOut) {
-        this.setState({ authenticated: false, accessToken: null, refreshToken: null, idToken: null });
-      }
-    });
+    console.log('Logging Out');
+    this.setState({ authenticated: false, accessToken: null, refreshToken: null, idToken: null });
   }
 
   componentDidMount() {
